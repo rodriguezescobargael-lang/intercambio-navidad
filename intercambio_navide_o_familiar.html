@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intercambio Navideño Familiar 🎅🎁</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        christmasRed: '#D42426',
+                        christmasDarkRed: '#9B1B1E',
+                        christmasGreen: '#165B33',
+                        christmasDarkGreen: '#0B3B24',
+                        christmasGold: '#F8B229',
+                        christmasCream: '#FDFBF7',
+                    },
+                    fontFamily: {
+                        festive: ['"Mountains of Christmas"', 'cursive'],
+                        sans: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Snow Animation Canvas */
+        #snow-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .gift-box {
+            perspective: 1000px;
+        }
+
+        .gift-inner {
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .gift-box.flipped .gift-inner {
+            transform: rotateY(180deg);
+        }
+
+        .gift-front, .gift-back {
+            backface-visibility: hidden;
+        }
+
+        .gift-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #165B33;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #F8B229;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-christmasDarkGreen via-christmasGreen to-christmasDarkRed text-slate-800 min-h-screen font-sans flex flex-col justify-between relative overflow-x-hidden pb-12">
+
+    <!-- Canvas para Nieve -->
+    <canvas id="snow-canvas"></canvas>
+
+    <!-- Header Principal Navideño -->
+    <header class="text-center py-8 px-4 relative z-10">
+        <div class="inline-block bg-christmasRed/90 text-white px-6 py-2 rounded-full border-2 border-christmasGold shadow-lg mb-3 animate-bounce">
+            <i class="fa-solid font-bold fa-snowflake text-christmasGold mr-2"></i> ¡Edición Navidad! <i class="fa-solid fa-snowflake text-christmasGold ml-2"></i>
+        </div>
+        <h1 class="font-festive text-5xl md:text-7xl text-christmasGold drop-shadow-[0_4px_4px_rgba(0,0,0,0.7)] tracking-wide">
+            Intercambio Navideño 🎄
+        </h1>
+        <p class="text-white/90 text-sm md:text-base max-w-xl mx-auto mt-2 font-light">
+            Organiza el amigo secreto de toda la familia, agrega tu lista de deseos y descubre a quién le regalarás manteniendo el secreto.
+        </p>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-4xl mx-auto px-4 w-full relative z-10 flex-grow">
+
+        <!-- Barra de Estado / Pasos -->
+        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 mb-8 text-white flex justify-between items-center text-xs md:text-sm shadow-xl">
+            <div id="step-1-badge" class="flex items-center gap-2 font-bold text-christmasGold">
+                <span class="w-6 h-6 rounded-full bg-christmasGold text-christmasDarkGreen flex items-center justify-center font-extrabold">1</span>
+                <span>Participantes</span>
+            </div>
+            <div class="h-0.5 bg-white/20 flex-1 mx-2"></div>
+            <div id="step-2-badge" class="flex items-center gap-2 text-white/60">
+                <span class="w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center font-bold">2</span>
+                <span>Sorteo</span>
+            </div>
+            <div class="h-0.5 bg-white/20 flex-1 mx-2"></div>
+            <div id="step-3-badge" class="flex items-center gap-2 text-white/60">
+                <span class="w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center font-bold">3</span>
+                <span>Ver Amigo Secreto</span>
+            </div>
+        </div>
+
+        <!-- Seccion 1: Gestión de Participantes y Presupuesto -->
+        <section id="setup-section" class="bg-christmasCream rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-christmasGold mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-christmasGreen/20 pb-4 mb-6 gap-4">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-christmasDarkGreen flex items-center gap-2">
+                        <i class="fa-solid fa-users text-christmasRed"></i> Lista de Participantes
+                    </h2>
+                    <p class="text-xs text-gray-600">Agrega a todos los miembros de la familia que participarán.</p>
+                </div>
+                <!-- Presupuesto -->
+                <div class="flex items-center gap-2 bg-christmasGreen/10 p-2 px-4 rounded-xl border border-christmasGreen/30 w-full md:w-auto">
+                    <i class="fa-solid fa-gift text-christmasRed text-lg"></i>
+                    <label class="text-xs font-bold text-christmasDarkGreen">Presupuesto Sugerido:</label>
+                    <input type="text" id="budget-input" placeholder="Ej: $20 USD / $500 MXN" 
+                        class="bg-white px-3 py-1 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-christmasGreen w-36 font-semibold">
+                </div>
+            </div>
+
+            <!-- Formulario para Agregar Nombre -->
+            <form id="add-member-form" class="flex flex-col sm:flex-row gap-3 mb-6">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-user absolute left-3 top-3.5 text-gray-400"></i>
+                    <input type="text" id="member-name-input" placeholder="Escribe el nombre del familiar (Ej: Tía María)..." 
+                        class="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-christmasGreen focus:outline-none font-medium shadow-sm" required>
+                </div>
+                <button type="submit" 
+                    class="bg-christmasGreen hover:bg-christmasDarkGreen text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-all duration-200 flex items-center justify-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-plus"></i> Agregar
+                </button>
+            </form>
+
+            <!-- Lista de Integrantes -->
+            <div class="mb-6">
+                <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Registrados (<span id="member-count">0</span>):</h3>
+                <div id="members-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 min-h-[60px]">
+                    <!-- Renderizado dinámico de miembros -->
+                </div>
+            </div>
+
+            <!-- Botón de Sorteo -->
+            <div class="pt-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p class="text-xs text-gray-500 text-center sm:text-left">Se necesitan mínimo 3 personas para un intercambio justo.</p>
+                <button id="start-draw-btn" 
+                    class="w-full sm:w-auto bg-gradient-to-r from-christmasRed to-christmasDarkRed hover:from-christmasDarkRed hover:to-christmasRed text-white text-lg font-bold px-8 py-3.5 rounded-xl shadow-xl border-2 border-christmasGold transition-all duration-300 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-wand-magic-sparkles text-christmasGold"></i> Realizar Sorteo Navideño
+                </button>
+            </div>
+        </section>
+
+        <!-- Seccion 2: Panel de Participante (Revelar e Ideas de Regalos) -->
+        <section id="draw-results-section" class="hidden bg-christmasCream rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-christmasGold mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-christmasGreen/20 pb-4 mb-6 gap-4">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-christmasDarkGreen flex items-center gap-2">
+                        <i class="fa-solid fa-lock text-christmasRed"></i> Entrada de Familiar
+                    </h2>
+                    <p class="text-xs text-gray-600">Selecciona tu nombre para ver a quién le regalas y gestionar tu lista de regalos.</p>
+                </div>
+                <!-- Botón Reiniciar -->
+                <button id="reset-draw-btn" class="text-xs font-semibold text-christmasRed hover:text-christmasDarkRed underline flex items-center gap-1">
+                    <i class="fa-solid fa-rotate-left"></i> Reiniciar Sorteo o Editar Lista
+                </button>
+            </div>
+
+            <!-- Selector de Usuario -->
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-christmasDarkGreen mb-2">¿Quién eres tú?</label>
+                <select id="user-select" class="w-full p-3.5 rounded-xl border-2 border-christmasGreen bg-white font-bold text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-christmasGold">
+                    <option value="" disabled selected>-- Selecciona tu nombre --</option>
+                </select>
+            </div>
+
+            <!-- Login PIN Modal/Card -->
+            <div id="pin-entry-card" class="hidden bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-inner mb-6 text-center">
+                <i class="fa-solid fa-key text-3xl text-christmasGold mb-2"></i>
+                <h3 class="font-bold text-gray-800 text-lg mb-1">Crea o Ingresa tu PIN Secreto (4 dígitos)</h3>
+                <p class="text-xs text-gray-500 mb-4">Esto protege tu amigo secreto para que solo tú puedas verlo en este celular o computadora.</p>
+                <div class="flex justify-center gap-2 mb-4">
+                    <input type="password" maxlength="4" id="pin-input" placeholder="1234" pattern="[0-9]*" inputmode="numeric"
+                        class="w-32 text-center text-2xl tracking-widest py-2 rounded-xl border-2 border-christmasGreen font-mono font-bold focus:outline-none">
+                </div>
+                <button id="verify-pin-btn" class="bg-christmasGreen hover:bg-christmasDarkGreen text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all">
+                    Acceder a mi Cuenta
+                </button>
+            </div>
+
+            <!-- Área del Usuario Autenticado -->
+            <div id="user-dashboard" class="hidden space-y-8">
+                
+                <!-- Tarjeta Revelable del Amigo Secreto -->
+                <div class="bg-gradient-to-br from-christmasDarkGreen to-christmasGreen p-6 rounded-2xl text-white shadow-xl text-center relative overflow-hidden">
+                    <div class="absolute -right-6 -bottom-6 text-white/5 text-9xl">
+                        <i class="fa-solid fa-gift"></i>
+                    </div>
+
+                    <h3 class="text-christmasGold font-festive text-3xl mb-1">¡Tu Amigo Secreto!</h3>
+                    <p class="text-xs text-white/80 mb-6">Haz clic en el regalo para descubrir a quién te tocó dar el obsequio este año.</p>
+
+                    <!-- Tarjeta con Efecto Flip -->
+                    <div id="gift-card" class="gift-box w-full max-w-sm mx-auto h-48 cursor-pointer">
+                        <div class="gift-inner relative w-full h-full duration-700">
+                            <!-- Frente de la caja -->
+                            <div class="gift-front absolute inset-0 bg-christmasRed border-4 border-christmasGold rounded-2xl flex flex-col items-center justify-center p-4 shadow-2xl">
+                                <i class="fa-solid fa-gift text-6xl text-christmasGold mb-2 animate-pulse"></i>
+                                <span class="font-bold text-sm tracking-wide bg-christmasDarkRed/80 px-4 py-1 rounded-full border border-christmasGold/40">TOCA PARA REVELAR</span>
+                            </div>
+                            <!-- Reverso con el resultado -->
+                            <div class="gift-back absolute inset-0 bg-white text-gray-800 border-4 border-christmasGold rounded-2xl flex flex-col items-center justify-center p-4 shadow-2xl">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Te tocó regalarle a:</span>
+                                <h4 id="secret-friend-name" class="font-festive text-4xl font-bold text-christmasRed mb-1">---</h4>
+                                <div class="text-xs text-christmasGreen font-semibold flex items-center gap-1">
+                                    <i class="fa-solid fa-check-circle"></i> ¡Mantén el secreto! 🤫
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dos Columnas: Lista de Deseos Propia y del Amigo Secreto -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Mi Lista de Deseos -->
+                    <div class="bg-white p-5 rounded-2xl border-2 border-gray-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3 border-b pb-2">
+                                <h4 class="font-bold text-christmasDarkGreen flex items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-christmasRed"></i> Mi Lista de Regalos
+                                </h4>
+                                <span class="text-[10px] bg-christmasGold/20 text-christmasDarkGreen px-2 py-0.5 rounded font-bold">Tus sugerencias</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3">Agrega cosas que te gustaría recibir para ayudar a quien te le tocó regalarte.</p>
+
+                            <!-- Formulario deseo -->
+                            <form id="add-wish-form" class="flex gap-2 mb-4">
+                                <input type="text" id="wish-input" placeholder="Ej: Libro de cocina, Calcetines rojos..." 
+                                    class="flex-1 text-xs px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-christmasGreen" required>
+                                <button type="submit" class="bg-christmasGreen text-white text-xs px-3 py-2 rounded-lg font-bold hover:bg-christmasDarkGreen">
+                                    Añadir
+                                </button>
+                            </form>
+
+                            <!-- Lista de mis deseos -->
+                            <ul id="my-wish-list" class="space-y-2 text-xs max-h-48 overflow-y-auto">
+                                <!-- Dinámico -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Deseos de Mi Amigo Secreto -->
+                    <div class="bg-white p-5 rounded-2xl border-2 border-christmasGold/40 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3 border-b pb-2">
+                                <h4 class="font-bold text-christmasDarkGreen flex items-center gap-2">
+                                    <i class="fa-solid fa-eye text-christmasGold"></i> Deseos de <span id="target-friend-label" class="text-christmasRed font-extrabold">tu amigo</span>
+                                </h4>
+                                <span class="text-[10px] bg-christmasRed/10 text-christmasRed px-2 py-0.5 rounded font-bold">Secreto</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3">Estas son las cosas que esta persona sugirió para su regalo:</p>
+
+                            <!-- Lista de deseos del asignado -->
+                            <ul id="target-wish-list" class="space-y-2 text-xs max-h-56 overflow-y-auto">
+                                <!-- Dinámico -->
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Reglas Rápidas / Info -->
+        <section class="bg-white/10 backdrop-blur-md rounded-2xl p-6 text-white text-xs border border-white/20">
+            <h4 class="font-bold text-christmasGold text-sm mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-circle-info"></i> ¿Cómo funciona esta página?
+            </h4>
+            <ul class="list-disc list-inside space-y-1 text-white/80">
+                <li>Agreguen los nombres de todos los familiares que participarán.</li>
+                <li>Presionen <b>"Realizar Sorteo Navideño"</b>. La aplicación asignará a cada persona en secreto de forma totalmente aleatoria.</li>
+                <li>Cada familiar puede venir a este celular/pantalla, elegir su nombre, ingresar su PIN de 4 dígitos y presionar la tarjeta para ver a quién le regala.</li>
+                <li>Cada quien puede dejar anotado su propio deseo de regalo para orientar a su amigo secreto.</li>
+            </ul>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-white/60 text-xs py-6 relative z-10">
+        <p>¡Felices Fiestas en Familia! 🎄🎁✨</p>
+    </footer>
+
+    <!-- Toast Notification / Mensajes -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-christmasDarkGreen text-white px-5 py-3 rounded-xl shadow-2xl border-2 border-christmasGold transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-christmasGold"></i>
+        <span id="toast-message" class="text-xs font-semibold">Mensaje de notificación</span>
+    </div>
+
+    <!-- Script de la aplicación -->
+    <script>
+        // --- ESTADO DE LA APLICACIÓN ---
+        let appState = {
+            budget: '',
+            members: [], // Array de objetos: { id, name, pin, assignedToId, wishes: [] }
+            isDrawn: false
+        };
+
+        let currentUserId = null;
+
+        // --- REFERENCIAS AL DOM ---
+        const setupSection = document.getElementById('setup-section');
+        const drawResultsSection = document.getElementById('draw-results-section');
+        const addMemberForm = document.getElementById('add-member-form');
+        const memberNameInput = document.getElementById('member-name-input');
+        const membersList = document.getElementById('members-list');
+        const memberCount = document.getElementById('member-count');
+        const budgetInput = document.getElementById('budget-input');
+        const startDrawBtn = document.getElementById('start-draw-btn');
+        const resetDrawBtn = document.getElementById('reset-draw-btn');
+        
+        const userSelect = document.getElementById('user-select');
+        const pinEntryCard = document.getElementById('pin-entry-card');
+        const pinInput = document.getElementById('pin-input');
+        const verifyPinBtn = document.getElementById('verify-pin-btn');
+        const userDashboard = document.getElementById('user-dashboard');
+        
+        const giftCard = document.getElementById('gift-card');
+        const secretFriendName = document.getElementById('secret-friend-name');
+        const addWishForm = document.getElementById('add-wish-form');
+        const wishInput = document.getElementById('wish-input');
+        const myWishList = document.getElementById('my-wish-list');
+        const targetFriendLabel = document.getElementById('target-friend-label');
+        const targetWishList = document.getElementById('target-wish-list');
+
+        const step1Badge = document.getElementById('step-1-badge');
+        const step2Badge = document.getElementById('step-2-badge');
+        const step3Badge = document.getElementById('step-3-badge');
+
+        // --- INICIALIZACIÓN ---
+        window.onload = function() {
+            loadFromLocalStorage();
+            initSnowEffect();
+            renderUI();
+        };
+
+        // --- PERSISTENCIA (LOCALSTORAGE) ---
+        function saveToLocalStorage() {
+            localStorage.setItem('navidad_intercambio_data', JSON.stringify(appState));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('navidad_intercambio_data');
+            if (saved) {
+                try {
+                    appState = JSON.parse(saved);
+                    budgetInput.value = appState.budget || '';
+                } catch (e) {
+                    console.error("Error al cargar localStorage", e);
+                }
+            }
+        }
+
+        // --- NOTIFICACIONES TOAST ---
+        function showToast(message, iconClass = 'fa-circle-check') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            toastIcon.className = `fa-solid ${iconClass} text-christmasGold`;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- LOGICA DE PARTICIPANTES ---
+        addMemberForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = memberNameInput.value.trim();
+
+            if (!name) return;
+
+            if (appState.members.some(m => m.name.toLowerCase() === name.toLowerCase())) {
+                showToast('Ese nombre ya existe en la lista.', 'fa-circle-exclamation');
+                return;
+            }
+
+            const newMember = {
+                id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                name: name,
+                pin: '',
+                assignedToId: null,
+                wishes: []
+            };
+
+            appState.members.push(newMember);
+            memberNameInput.value = '';
+            saveToLocalStorage();
+            renderUI();
+            showToast(`${name} agregado a la lista.`);
+        });
+
+        budgetInput.addEventListener('change', () => {
+            appState.budget = budgetInput.value.trim();
+            saveToLocalStorage();
+        });
+
+        function removeMember(id) {
+            appState.members = appState.members.filter(m => m.id !== id);
+            saveToLocalStorage();
+            renderUI();
+            showToast('Participante eliminado.');
+        }
+
+        // --- LÓGICA DEL SORTEO ---
+        startDrawBtn.addEventListener('click', () => {
+            if (appState.members.length < 3) {
+                showToast('Se requieren al menos 3 personas para el sorteo.', 'fa-triangle-exclamation');
+                return;
+            }
+
+            // Algoritmo de Derangement (nadie se autoselect)
+            let success = false;
+            let attempts = 0;
+            const maxAttempts = 500;
+
+            while (!success && attempts < maxAttempts) {
+                attempts++;
+                const pool = [...appState.members];
+                const assignments = {};
+                let valid = true;
+
+                for (let member of appState.members) {
+                    // Filtrar candidatos (excluir a sí mismo)
+                    const candidates = pool.filter(c => c.id !== member.id);
+                    if (candidates.length === 0) {
+                        valid = false;
+                        break;
+                    }
+                    // Elegir aleatorio
+                    const randomIndex = Math.floor(Math.random() * candidates.length);
+                    const chosen = candidates[randomIndex];
+                    
+                    assignments[member.id] = chosen.id;
+                    // Eliminar del pool general
+                    const poolIndex = pool.findIndex(p => p.id === chosen.id);
+                    pool.splice(poolIndex, 1);
+                }
+
+                if (valid) {
+                    // Aplicar asignaciones
+                    appState.members.forEach(m => {
+                        m.assignedToId = assignments[m.id];
+                    });
+                    success = true;
+                }
+            }
+
+            if (success) {
+                appState.isDrawn = true;
+                saveToLocalStorage();
+                renderUI();
+
+                // Confetti Navideño
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#D42426', '#165B33', '#F8B229', '#ffffff']
+                });
+
+                showToast('¡Sorteo realizado con éxito! 🎄', 'fa-wand-magic-sparkles');
+            } else {
+                showToast('Hubo un error intentando sortear. Intenta de nuevo.', 'fa-circle-exclamation');
+            }
+        });
+
+        resetDrawBtn.addEventListener('click', () => {
+            if (confirm('¿Estás seguro de reiniciar el sorteo? Se borrarán los amigos asignados (pero se guardarán los nombres y listas de deseos).')) {
+                appState.isDrawn = false;
+                appState.members.forEach(m => m.assignedToId = null);
+                currentUserId = null;
+                saveToLocalStorage();
+                renderUI();
+                showToast('Sorteo reiniciado.');
+            }
+        });
+
+        // --- MANEJO DE SELECCIÓN DE USUARIO Y PIN ---
+        userSelect.addEventListener('change', (e) => {
+            const selectedId = e.target.value;
+            if (!selectedId) return;
+
+            const member = appState.members.find(m => m.id === selectedId);
+            if (!member) return;
+
+            currentUserId = selectedId;
+            pinInput.value = '';
+            giftCard.classList.remove('flipped'); // reset card
+
+            // Mostrar caja de PIN
+            pinEntryCard.classList.remove('hidden');
+            userDashboard.classList.add('hidden');
+            pinInput.focus();
+        });
+
+        verifyPinBtn.addEventListener('click', handlePinVerification);
+        pinInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handlePinVerification();
+        });
+
+        function handlePinVerification() {
+            if (!currentUserId) return;
+            const member = appState.members.find(m => m.id === currentUserId);
+            const inputPin = pinInput.value.trim();
+
+            if (inputPin.length !== 4) {
+                showToast('El PIN debe ser de 4 números.', 'fa-circle-exclamation');
+                return;
+            }
+
+            if (!member.pin) {
+                // Asignar primer PIN
+                member.pin = inputPin;
+                saveToLocalStorage();
+                showToast('¡PIN registrado correctamente!');
+                unlockUserDashboard(member);
+            } else if (member.pin === inputPin) {
+                // PIN correcto
+                unlockUserDashboard(member);
+            } else {
+                showToast('PIN incorrecto. Intenta de nuevo.', 'fa-circle-xmark');
+            }
+        }
+
+        function unlockUserDashboard(member) {
+            pinEntryCard.classList.add('hidden');
+            userDashboard.classList.remove('hidden');
+
+            // Cargar datos de la persona asignada
+            const targetMember = appState.members.find(m => m.id === member.assignedToId);
+            if (targetMember) {
+                secretFriendName.textContent = targetMember.name;
+                targetFriendLabel.textContent = targetMember.name;
+                renderTargetWishes(targetMember.wishes);
+            }
+
+            renderMyWishes(member.wishes);
+        }
+
+        // --- TARJETA REVELABLE ---
+        giftCard.addEventListener('click', () => {
+            giftCard.classList.toggle('flipped');
+            if (giftCard.classList.contains('flipped')) {
+                // Efecto de estrellitas
+                confetti({
+                    particleCount: 30,
+                    spread: 60,
+                    origin: { y: 0.7 },
+                    colors: ['#F8B229', '#ffffff']
+                });
+            }
+        });
+
+        // --- MANEJO DE DESEOS ---
+        addWishForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!currentUserId) return;
+
+            const wishText = wishInput.value.trim();
+            if (!wishText) return;
+
+            const member = appState.members.find(m => m.id === currentUserId);
+            if (member) {
+                member.wishes.push(wishText);
+                saveToLocalStorage();
+                renderMyWishes(member.wishes);
+                wishInput.value = '';
+                showToast('Deseo agregado a tu lista.');
+            }
+        });
+
+        function removeWish(index) {
+            if (!currentUserId) return;
+            const member = appState.members.find(m => m.id === currentUserId);
+            if (member) {
+                member.wishes.splice(index, 1);
+                saveToLocalStorage();
+                renderMyWishes(member.wishes);
+                showToast('Deseo eliminado.');
+            }
+        }
+
+        function renderMyWishes(wishes) {
+            myWishList.innerHTML = '';
+            if (!wishes || wishes.length === 0) {
+                myWishList.innerHTML = `<li class="text-gray-400 italic text-center py-2">No has agregado ideas todavía.</li>`;
+                return;
+            }
+
+            wishes.forEach((w, idx) => {
+                const li = document.createElement('li');
+                li.className = "flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-200";
+                li.innerHTML = `
+                    <span class="text-gray-700 font-medium">🎁 ${escapeHTML(w)}</span>
+                    <button onclick="removeWish(${idx})" class="text-red-500 hover:text-red-700 font-bold px-1.5">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                myWishList.appendChild(li);
+            });
+        }
+
+        function renderTargetWishes(wishes) {
+            targetWishList.innerHTML = '';
+            if (!wishes || wishes.length === 0) {
+                targetWishList.innerHTML = `<li class="text-gray-400 italic text-center py-4 bg-gray-50 rounded-xl">Esta persona aún no ha agregado sus ideas de regalos. ¡Vuelve a revisar pronto!</li>`;
+                return;
+            }
+
+            wishes.forEach((w) => {
+                const li = document.createElement('li');
+                li.className = "bg-christmasGold/10 p-2.5 rounded-xl border border-christmasGold/30 text-christmasDarkGreen font-semibold flex items-center gap-2";
+                li.innerHTML = `<i class="fa-solid fa-star text-christmasGold text-xs"></i> ${escapeHTML(w)}`;
+                targetWishList.appendChild(li);
+            });
+        }
+
+        // --- RENDERIZADO GENERAL DE LA INTERFAZ ---
+        function renderUI() {
+            // Contadores y estado
+            memberCount.textContent = appState.members.length;
+
+            // Renderizar Lista de Miembros en la fase 1
+            membersList.innerHTML = '';
+            if (appState.members.length === 0) {
+                membersList.innerHTML = `<p class="col-span-full text-center text-gray-400 italic py-4">No hay participantes agregados aún.</p>`;
+            } else {
+                appState.members.forEach(member => {
+                    const card = document.createElement('div');
+                    card.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-200 shadow-sm";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-2 overflow-hidden">
+                            <div class="w-8 h-8 rounded-full bg-christmasGreen/10 text-christmasGreen font-bold flex items-center justify-center text-xs flex-shrink-0">
+                                ${member.name.charAt(0).toUpperCase()}
+                            </div>
+                            <span class="font-bold text-gray-800 text-sm truncate">${escapeHTML(member.name)}</span>
+                        </div>
+                        ${!appState.isDrawn ? `
+                            <button onclick="removeMember('${member.id}')" class="text-gray-400 hover:text-christmasRed p-1 transition-colors">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        ` : ''}
+                    `;
+                    membersList.appendChild(card);
+                });
+            }
+
+            // Cambiar entre Vistas (Sorteado vs No Sorteado)
+            if (appState.isDrawn) {
+                setupSection.classList.add('hidden');
+                drawResultsSection.classList.remove('hidden');
+
+                // Actualizar badges
+                step1Badge.className = "flex items-center gap-2 text-white/60";
+                step1Badge.querySelector('span').className = "w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center font-bold";
+                
+                step2Badge.className = "flex items-center gap-2 text-white/60";
+                step2Badge.querySelector('span').className = "w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center font-bold";
+
+                step3Badge.className = "flex items-center gap-2 font-bold text-christmasGold";
+                step3Badge.querySelector('span').className = "w-6 h-6 rounded-full bg-christmasGold text-christmasDarkGreen flex items-center justify-center font-extrabold";
+
+                // Llenar Selector de Usuarios
+                userSelect.innerHTML = `<option value="" disabled selected>-- Selecciona tu nombre --</option>`;
+                appState.members.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = m.name + (m.pin ? ' 🔒' : ' (Nuevo)');
+                    userSelect.appendChild(opt);
+                });
+
+            } else {
+                setupSection.classList.remove('hidden');
+                drawResultsSection.classList.add('hidden');
+
+                step1Badge.className = "flex items-center gap-2 font-bold text-christmasGold";
+                step1Badge.querySelector('span').className = "w-6 h-6 rounded-full bg-christmasGold text-christmasDarkGreen flex items-center justify-center font-extrabold";
+                
+                step2Badge.className = "flex items-center gap-2 text-white/60";
+                step2Badge.querySelector('span').className = "w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center font-bold";
+
+                step3Badge.className = "flex items-center gap-2 text-white/60";
+                step3Badge.querySelector('span').className = "w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center font-bold";
+            }
+        }
+
+        // Sanitizador de texto
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        // --- ANIMACIÓN DE NIEVE ---
+        function initSnowEffect() {
+            const canvas = document.getElementById('snow-canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const numFlakes = 60;
+            const flakes = [];
+
+            for (let i = 0; i < numFlakes; i++) {
+                flakes.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: Math.random() * 3 + 1,
+                    d: Math.random() * 1 + 0.5,
+                    opacity: Math.random() * 0.7 + 0.3
+                });
+            }
+
+            function drawFlakes() {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+                ctx.beginPath();
+                for (let i = 0; i < numFlakes; i++) {
+                    const f = flakes[i];
+                    ctx.moveTo(f.x, f.y);
+                    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+                }
+                ctx.fill();
+                moveFlakes();
+            }
+
+            let angle = 0;
+            function moveFlakes() {
+                angle += 0.01;
+                for (let i = 0; i < numFlakes; i++) {
+                    const f = flakes[i];
+                    f.y += Math.cos(angle + f.d) + 1 + f.r / 2;
+                    f.x += Math.sin(angle) * 1;
+
+                    if (f.y > height) {
+                        flakes[i] = {
+                            x: Math.random() * width,
+                            y: 0,
+                            r: f.r,
+                            d: f.d,
+                            opacity: f.opacity
+                        };
+                    }
+                }
+            }
+
+            function animateSnow() {
+                drawFlakes();
+                requestAnimationFrame(animateSnow);
+            }
+
+            animateSnow();
+        }
+    </script>
+</body>
+</html>
